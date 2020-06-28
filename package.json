@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@serialport/parser-byte-length": "^9.0.0",
+    "chai": "^4.2.0",
+    "mocha": "^8.0.1",
+    "serialport": "^9.0.0"
+  },
+  "scripts": {
+    "test": "mocha tfmini.spec.mjs"
+  }
+}
