@@ -1,4 +1,4 @@
-import TFMini from "./tfmini.mjs";
+import TFMiniParser from "./tfmini.mjs";
 import chai from "chai";
 
 const {expect} = chai;
@@ -7,21 +7,17 @@ let checksum = (...args) => {return args.reduce((a,b) => a + b) % 256}
 
 describe("TFMini class", () => {
     let tfmini;
+    let goodByteSequence;
     let distance = -1;
     beforeEach(() => {
-        tfmini = new TFMini({distance: function(dist) {distance = dist} })
+        tfmini = new TFMiniParser({distance: function(dist) {distance = dist} });
+        goodByteSequence = [89,89,211,30,0,0,0,0,checksum(89,89,211,30)];
+        distance = -1;
     })
+    
     describe("receives a valid distance packet of 7891", () => {
-        beforeEach(() => {
-            tfmini.receive(89);
-            tfmini.receive(89);
-            tfmini.receive(211);
-            tfmini.receive(30);
-            tfmini.receive(0);
-            tfmini.receive(0);
-            tfmini.receive(0);
-            tfmini.receive(0);
-            tfmini.receive(checksum(89,89,211,30));
+        beforeEach(async () => {
+            await tfmini.parse(goodByteSequence);
         });
 
         it("emits a distance event", () => {
@@ -30,21 +26,9 @@ describe("TFMini class", () => {
     });
 
     describe("receives a valid distance packet in the middle of garbage", () => {
-        beforeEach(() => {
-            tfmini.receive(44);
-            tfmini.receive(44);
-            tfmini.receive(100);
-            tfmini.receive(44);
-            tfmini.receive(0);
-            tfmini.receive(89);
-            tfmini.receive(89);
-            tfmini.receive(211);
-            tfmini.receive(30);
-            tfmini.receive(0);
-            tfmini.receive(0);
-            tfmini.receive(0);
-            tfmini.receive(0);
-            tfmini.receive(checksum(89,89,211,30));
+        beforeEach(async () => {
+            await tfmini.parse([44,100,44,0]);
+            await tfmini.parse(goodByteSequence);
         });
 
         it("emits a distance event", () => {
@@ -53,21 +37,9 @@ describe("TFMini class", () => {
     });
 
     describe("receives a valid distance packet in the middle of garbage", () => {
-        beforeEach(() => {
-            tfmini.receive(44);
-            tfmini.receive(89);
-            tfmini.receive(100);
-            tfmini.receive(44);
-            tfmini.receive(0);
-            tfmini.receive(89);
-            tfmini.receive(89);
-            tfmini.receive(211);
-            tfmini.receive(30);
-            tfmini.receive(0);
-            tfmini.receive(0);
-            tfmini.receive(0);
-            tfmini.receive(0);
-            tfmini.receive(checksum(89,89,211,30));
+        beforeEach(async () => {
+            tfmini.parse([44,89,100,44,0]);
+            tfmini.parse(goodByteSequence)
         });
 
         it("emits a distance event", () => {

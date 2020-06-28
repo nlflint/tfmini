@@ -1,7 +1,7 @@
 import SerialPort from 'serialport';
 import ByteLength from '@serialport/parser-byte-length';
 import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from 'constants';
-import TFMini from "./tfmini.mjs";
+import TFMiniParser from "./tfmini.mjs";
 
 const port = new SerialPort('/dev/ttyUSB0', {
     baudRate: 115200,
@@ -42,9 +42,9 @@ const parser = port.pipe(new ByteLength({length: 1}))
 //     // console.log(``);
 // });
 
-let tfmini = new TFMini({distance: (dist) => console.log("Feet: " + (dist / 30.48))});
+let tfmini = new TFMiniParser({distance: (dist) => console.log("Feet: " + (dist / 30.48))});
 
-parser.on('data', async (byte) => tfmini.receive(byte[0]));
+parser.on('data', tfmini.parse);
     
 
 function roundToTwoFixedDecimals(number) {

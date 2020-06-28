@@ -1,8 +1,11 @@
 const DISTANCE_HEADER = 89;
+const CONFIG_HEADER = [42, 57];
 
-export default class TFMini {
+
+export default class TFMiniParser {
   position = 0;
   frameData = [];
+  headerBuffer = [];
   
   constructor(callbacks) {
     this.callbacks = callbacks;
@@ -46,10 +49,12 @@ export default class TFMini {
     this.position = 0;
   }
 
-  receive(byte) {
-    let someFunc = this.funcs[this.position].bind(this);
-    
-    someFunc(byte);
+  async parse(bytes) {
+    bytes.forEach(byte => {
+      let someFunc = this.funcs[this.position].bind(this);
+      someFunc(byte);
+    }); 
+    return;
   }
 
 
